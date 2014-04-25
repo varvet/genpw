@@ -1,0 +1,28 @@
+#!/bin/bash
+
+dictionary=/usr/share/dict/words
+
+readable=false
+
+while getopts r opt; do
+  case $opt in
+  r)
+      readable=true
+      ;;
+  esac
+done
+
+function random_word {
+  awk NR==$((${RANDOM} % `wc -l < $dictionary` + 1)) $dictionary
+}
+
+if $readable; then
+  result=$(echo "$(random_word) $(random_word) $(random_word) $(random_word)" | tr '[:upper:]' '[:lower:]')
+else
+  result=$(openssl rand 200 | openssl dgst -sha1 | cut -c 1-32)
+fi
+
+if type pbcopy > /dev/null; then
+  echo $result | pbcopy
+fi
+echo $result
